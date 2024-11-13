@@ -6,14 +6,16 @@ import 'package:intl/intl.dart';
 
 class TaskDetailsScreen extends StatelessWidget {
   final Task task;
+  final int index;
 
   const TaskDetailsScreen({
+    required this.index,
     required this.task,
     super.key,
   });
+
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Text(task.taskText),
@@ -31,15 +33,25 @@ class TaskDetailsScreen extends StatelessWidget {
                   "Time created: ${DateFormat.yMMMMd().format(task.createdAt)}",
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
-                Switch.adaptive(
-                  value: task.isComplete,
-                  onChanged: (value) {
-                    context.read<TaskBloc>().add(
-                          TaskIsCompleteChanged(
-                            task,
-                            value,
-                          ),
-                        );
+                BlocBuilder<TaskBloc, TaskState>(
+                  builder: (context, state) {
+                    if (state is TaskLoadedState) {
+                      return Switch.adaptive(
+                        value: state.tasks[index].isComplete,
+                        onChanged: (value) {
+                          context.read<TaskBloc>().add(
+                                TaskIsCompleteChanged(
+                                  state.tasks[index],
+                                  value,
+                                ),
+                              );
+                        },
+                      );
+                    }
+                    return const Switch.adaptive(
+                      value: false,
+                      onChanged: null,
+                    );
                   },
                 ),
               ],

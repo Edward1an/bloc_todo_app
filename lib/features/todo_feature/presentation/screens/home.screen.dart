@@ -72,7 +72,7 @@ class HomeScreen extends StatelessWidget {
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
                                           builder: (_) =>
-                                              TaskDetailsScreen(task: task),
+                                              TaskDetailsScreen(task: task, index: index),
                                         ),
                                       );
                                     },
