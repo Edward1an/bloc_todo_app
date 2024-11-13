@@ -1,3 +1,4 @@
+
 import 'package:bloc_todo_app/core/dependency_injection.dart';
 import 'package:bloc_todo_app/core/resources/data_state.dart';
 import 'package:bloc_todo_app/features/todo_feature/data/models/task.model.dart';
@@ -29,6 +30,8 @@ class LocalTaskSource {
 
   Future<DataState<TaskModel>> editTask(TaskModel taskModel) async {
     try {
+      final taskToDelete = await _isar.writeTxn(() => _storage.getByTaskId(taskModel.taskId));
+      await _isar.writeTxn(() => _storage.deleteByTaskId(taskToDelete!.taskId));
       await _isar.writeTxn(() => _storage.put(taskModel));
       return DataSuccess(taskModel);
     } catch (e) {
@@ -38,7 +41,7 @@ class LocalTaskSource {
   
   Future<DataState<TaskModel>> deleteTask(TaskModel taskModel)async{
     try{
-      await _isar.writeTxn(()=> _storage.delete(taskModel.autoId));
+      await _isar.writeTxn(()=> _storage.deleteByTaskId(taskModel.taskId));
       return DataSuccess(taskModel);
     } catch (e){
       return DataFailure("error: $e", 500);

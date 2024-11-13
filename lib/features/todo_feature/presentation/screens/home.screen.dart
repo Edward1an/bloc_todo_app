@@ -1,9 +1,10 @@
 import 'package:bloc_todo_app/features/todo_feature/domain/entities/task.dart';
 import 'package:bloc_todo_app/features/todo_feature/presentation/blocs/task_bloc/task_bloc.dart';
 import 'package:bloc_todo_app/features/todo_feature/presentation/screens/add_task.screen.dart';
+import 'package:bloc_todo_app/features/todo_feature/presentation/screens/task_details.screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uuid/uuid.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -16,11 +17,15 @@ class HomeScreen extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () async {
-              Navigator.of(context).push(
+              final newTask = await Navigator.of(context).push<Task>(
                 MaterialPageRoute(
                   builder: (_) => const AddTaskScreen(),
                 ),
               );
+              if (newTask == null) {
+                return;
+              }
+              context.read<TaskBloc>().add(TaskSaved(newTask));
             },
             icon: const Icon(Icons.add),
           ),
@@ -29,31 +34,97 @@ class HomeScreen extends StatelessWidget {
       body: BlocConsumer<TaskBloc, TaskState>(
         builder: (context, state) {
           if (state is TaskLoadedState) {
-            final uuid = const Uuid();
+            final tasksList = state.tasks.reversed.toList();
             return Center(
-              child: Column(
-                children: [
-                  Text("tasks are loaded ${state.tasks.length}"),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<TaskBloc>().add(
-                            TaskSaved(
-                              Task(
-                                uuid.v4(),
-                                "test",
-                                false,
-                                DateTime.now(),
-                              ),
-                            ),
-                          );
-                    },
-                    child: const Text("add task"),
-                  ),
-                ],
-              ),
+              child: tasksList.isEmpty
+                  ? const Text("There is no tasks\nCreate a new task!")
+                  : CustomScrollView(
+                      slivers: [
+                        SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            childCount: tasksList.length,
+                            (BuildContext context, int index) {
+                              final task = tasksList[index];
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Card(
+                                  color: Theme.of(context)
+                                      .cardColor
+                                      .withBlue(1300),
+                                  child: ListTile(
+                                    title: Text(
+                                      task.taskText,
+                                      style: TextStyle(
+                                        fontStyle: task.isComplete
+                                            ? FontStyle.italic
+                                            : FontStyle.normal,
+                                        decoration: task.isComplete
+                                            ? TextDecoration.lineThrough
+                                            : TextDecoration.none,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      DateFormat.yMd().format(
+                                        task.createdAt,
+                                      ),
+                                    ),
+                                    onTap: () async {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              TaskDetailsScreen(task: task),
+                                        ),
+                                      );
+                                    },
+                                    leading: Checkbox.adaptive(
+                                      value: task.isComplete,
+                                      onChanged: (value) {
+                                        if (value == null) {
+                                          return;
+                                        }
+                                        context.read<TaskBloc>().add(
+                                              TaskIsCompleteChanged(
+                                                task,
+                                                value,
+                                              ),
+                                            );
+                                      },
+                                    ),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          onPressed: () {
+                                            context.read<TaskBloc>().add(
+                                                  TaskTextChanged(
+                                                    task,
+                                                    "newText",
+                                                  ),
+                                                );
+                                          },
+                                          icon: const Icon(Icons.edit),
+                                        ),
+                                        IconButton(
+                                          onPressed: () {
+                                            context
+                                                .read<TaskBloc>()
+                                                .add(TaskDeleted(task));
+                                          },
+                                          icon: const Icon(Icons.delete),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
             );
           }
-          return const Placeholder();
+          return const SizedBox.shrink();
         },
         listener: (context, state) {
           if (state is TaskErrorState) {
