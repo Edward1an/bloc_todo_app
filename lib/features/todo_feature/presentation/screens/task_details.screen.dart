@@ -11,9 +11,9 @@ class TaskDetailsScreen extends StatelessWidget {
     required this.task,
     super.key,
   });
-
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text(task.taskText),

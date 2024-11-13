@@ -95,12 +95,7 @@ class HomeScreen extends StatelessWidget {
                                       children: [
                                         IconButton(
                                           onPressed: () {
-                                            context.read<TaskBloc>().add(
-                                                  TaskTextChanged(
-                                                    task,
-                                                    "newText",
-                                                  ),
-                                                );
+                                            _editTaskText(task, context);
                                           },
                                           icon: const Icon(Icons.edit),
                                         ),
@@ -145,5 +140,49 @@ class HomeScreen extends StatelessWidget {
         },
       ),
     );
+  }
+
+  _editTaskText(Task task, BuildContext context) async {
+    final TextEditingController controller = TextEditingController();
+    final newText = await showAdaptiveDialog<String>(
+      context: context,
+      builder: (cxt) {
+        return AlertDialog.adaptive(
+          title: const Text("new task text"),
+          actions: [
+            TextButton(
+              onPressed: Navigator.of(context).pop,
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                if (controller.text.trim().isEmpty ||
+                    controller.text.trim() == "") {
+                  return;
+                }
+                Navigator.of(context).pop(controller.text);
+              },
+              child: const Text("Submit", style: TextStyle(fontWeight: FontWeight.w700),),
+            ),
+          ],
+          content: Card(
+            child: TextField(
+              controller: controller,
+              autocorrect: false,
+              decoration: InputDecoration(
+                labelText: "new task text",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+    if (newText == null) {
+      return;
+    }
+    context.read<TaskBloc>().add(TaskTextChanged(task, newText));
   }
 }
