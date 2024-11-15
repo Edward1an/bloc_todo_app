@@ -23,7 +23,6 @@ linter:
     - avoid_escaping_inner_quotes
     - avoid_returning_null_for_void
     - avoid_unnecessary_containers
-    - avoid_void_async
     - prefer_const_constructors
     - unnecessary_late
     - use_enums

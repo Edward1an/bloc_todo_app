@@ -37,7 +37,7 @@ class HomeScreen extends StatelessWidget {
             final tasksList = state.tasks.reversed.toList();
             return Center(
               child: tasksList.isEmpty
-                  ? const Text("There is no tasks\nCreate a new task!")
+                  ? Text("There is no tasks\nCreate a new task!", style: Theme.of(context).textTheme.titleLarge,)
                   : CustomScrollView(
                       slivers: [
                         SliverList(
@@ -71,8 +71,9 @@ class HomeScreen extends StatelessWidget {
                                     onTap: () async {
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
-                                          builder: (_) =>
-                                              TaskDetailsScreen(task: task, index: index),
+                                          builder: (_) => TaskDetailsScreen(
+                                            task: task,
+                                          ),
                                         ),
                                       );
                                     },
@@ -162,7 +163,10 @@ class HomeScreen extends StatelessWidget {
                 }
                 Navigator.of(context).pop(controller.text);
               },
-              child: const Text("Submit", style: TextStyle(fontWeight: FontWeight.w700),),
+              child: const Text(
+                "Submit",
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
             ),
           ],
           content: Card(

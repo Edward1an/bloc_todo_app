@@ -29,7 +29,6 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     TasksGotAll event,
     Emitter<TaskState> emit,
   ) async {
-    emit(TaskLoadingState());
     final response =
         await GetAllTasksUseCase(taskRepository: taskRepository)(null);
     if (response is DataSuccess) {
@@ -49,7 +48,6 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     Emitter<TaskState> emit,
   ) async {
     List<Task> list = List.from((state as TaskLoadedState).tasks);
-    emit(TaskLoadingState());
     final response =
         await DeleteTaskUseCase(taskRepository: taskRepository)(event.task);
     if (response is DataSuccess) {
@@ -71,7 +69,6 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     Emitter<TaskState> emit,
   ) async {
     List<Task> list = List.from((state as TaskLoadedState).tasks);
-    emit(TaskLoadingState());
     final response =
         await SaveTaskUseCase(taskRepository: taskRepository)(event.task);
     if (response is DataSuccess) {
@@ -92,7 +89,6 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     Emitter<TaskState> emit,
   ) async {
     List<Task> list = List.from((state as TaskLoadedState).tasks);
-    emit(TaskLoadingState());
     final response =
         await EditTaskUseCase(taskRepository: taskRepository)(event.task);
     if (response is DataSuccess) {
@@ -119,7 +115,6 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     Emitter<TaskState> emit,
   ) async {
     List<Task> list = List.from((state as TaskLoadedState).tasks);
-    emit(TaskLoadingState());
     final response = await EditTaskUseCase(taskRepository: taskRepository)(
       Task(
         event.task.taskId,
@@ -152,7 +147,6 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     Emitter<TaskState> emit,
   ) async {
     List<Task> list = List.from((state as TaskLoadedState).tasks);
-    emit(TaskLoadingState());
     final response = await EditTaskUseCase(taskRepository: taskRepository)(
       Task(
         event.task.taskId,
